@@ -89,6 +89,7 @@ public class UserController {
 
     /**
      * 根据id查用户
+     *
      * @param userId
      * @return
      */
@@ -102,5 +103,25 @@ public class UserController {
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         // 返回
         return Result.ok(userDTO);
+    }
+
+    /**
+     * bit 实现签到
+     *
+     * @return
+     */
+    @PostMapping("/sign")
+    public Result sign() {
+        return userService.sign();
+    }
+
+    /**
+     * 实现签到统计功能
+     * 统计当前用户截止当前时间在本月的连续签到天数
+     * @return
+     */
+    @GetMapping("/sign/count")
+    public Result signCount() {
+        return userService.signCount();
     }
 }

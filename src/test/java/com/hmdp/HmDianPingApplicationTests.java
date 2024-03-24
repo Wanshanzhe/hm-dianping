@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static com.hmdp.utils.RedisConstants.SHOP_GEO_KEY;
+
 @SpringBootTest
 class HmDianPingApplicationTests {
 
@@ -67,7 +69,7 @@ class HmDianPingApplicationTests {
         for (Map.Entry<Long, List<Shop>> entry : map.entrySet()) {
             // 3.1.获取类型id
             Long typeId = entry.getKey();
-            String key = "shop:geo:" + typeId;
+            String key = SHOP_GEO_KEY + typeId;
             // 3.2.获取同类型的店铺集合
             List<Shop> value = entry.getValue();
             List<RedisGeoCommands.GeoLocation<String>> localtions = new ArrayList<>(value.size());
@@ -78,6 +80,23 @@ class HmDianPingApplicationTests {
             }
             stringRedisTemplate.opsForGeo().add(key, localtions);
         }
+    }
+
+    @Test
+    void testHyperLogLog() {
+        String[] values = new String[1000];
+        int j = 0;
+        for (int i = 0; i < 1000000; i++) {
+            j = i % 1000;
+            values[j] = "user_" + i;
+            if (j == 999) {
+                // 发送到redis
+                stringRedisTemplate.opsForHyperLogLog().add("hl2", values);
+            }
+        }
+        // 统计数量
+        Long count = stringRedisTemplate.opsForHyperLogLog().size("hl2");
+        System.out.println("count=" + count);
     }
 
 
